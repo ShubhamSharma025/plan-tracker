@@ -9,6 +9,11 @@ export default function Settings({ theme, setTheme }) {
   const [importStatus, setImportStatus] = useState(null); // null, 'success', 'error'
   const [importError, setImportError] = useState('');
 
+  // Updates checking states
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  const APP_VERSION = 'v1.2.0';
+  const BUILD_DATE = 'July 23, 2026 - 21:00';
+
   // Load all weeks to compute dashboard metrics
   useEffect(() => {
     async function loadData() {
@@ -114,11 +119,18 @@ export default function Settings({ theme, setTheme }) {
   };
 
   const handleCheckForUpdates = async () => {
-    if ('serviceWorker' in navigator) {
+    if (!('serviceWorker' in navigator)) {
+      alert('Service Worker is not supported on this browser.');
+      return;
+    }
+
+    setIsCheckingUpdates(true);
+    
+    // Artificial 1-second timeout to give tactile feedback that network queries are executing
+    setTimeout(async () => {
       try {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration) {
-          alert('Checking for new app builds...');
           await registration.update();
           
           if (registration.waiting) {
@@ -135,10 +147,10 @@ export default function Settings({ theme, setTheme }) {
       } catch (err) {
         console.error('Update check failed:', err);
         alert('Could not check for updates: ' + err.message);
+      } finally {
+        setIsCheckingUpdates(false);
       }
-    } else {
-      alert('Service Worker is not supported on this browser.');
-    }
+    }, 1000);
   };
 
   // --- DYNAMIC DASHBOARD METRICS ---
@@ -349,28 +361,77 @@ export default function Settings({ theme, setTheme }) {
         </div>
       </div>
 
-      {/* Application Updates */}
-      <div className="card">
-        <h3 style={{ fontSize: '14px', fontWeight: '800', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {/* Application Updates & Changelog */}
+      <div className="card" style={{ borderColor: 'rgba(252, 97, 32, 0.25)' }}>
+        <h3 style={{ fontSize: '14px', fontWeight: '800', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.03em', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <RefreshCw size={18} style={{ color: 'var(--strava-orange)' }} />
           Application Updates
         </h3>
-        <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '14px', lineHeight: '1.4' }}>
-          If you pushed updates to GitHub or Vercel, check here to force the mobile app to download the latest version.
-        </p>
+        
+        {/* Version Information Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'var(--input-bg)', border: '1px solid var(--card-border)', borderRadius: '10px', padding: '10px 12px', marginBottom: '14px' }}>
+          <div>
+            <span style={{ fontSize: '9px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Active Version</span>
+            <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--job-green)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--job-green)' }}></div>
+              {APP_VERSION}
+            </div>
+          </div>
+          <div>
+            <span style={{ fontSize: '9px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Last Built</span>
+            <div style={{ fontSize: '11px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '3px' }}>
+              {BUILD_DATE}
+            </div>
+          </div>
+        </div>
+
+        {/* Changelog section */}
+        <div style={{ background: 'var(--input-bg)', border: '1px solid var(--card-border)', borderRadius: '10px', padding: '12px', marginBottom: '14px' }}>
+          <span style={{ fontSize: '9px', color: 'var(--text-secondary)', textTransform: 'uppercase', display: 'block', marginBottom: '8px', letterSpacing: '0.04em' }}>
+            Latest Release Updates
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              <span style={{ color: 'var(--strava-orange)' }}>✓</span>
+              <span>Tactile incremental planned study target dial adjusters</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              <span style={{ color: 'var(--strava-orange)' }}>✓</span>
+              <span>Dynamic target completion countdowns (Xh left / Overdue)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              <span style={{ color: 'var(--strava-orange)' }}>✓</span>
+              <span>Unified completion sync between Syllabus & Record sheets</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+              <span style={{ color: 'var(--strava-orange)' }}>✓</span>
+              <span>Daily blocker notes and study revision log modal drawers</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Sync Trigger Button */}
         <button
           type="button"
           className="btn-primary"
           onClick={handleCheckForUpdates}
+          disabled={isCheckingUpdates}
           style={{
             width: '100%',
             height: '42px',
             borderRadius: '10px',
             fontWeight: '800',
-            fontSize: '13px'
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            background: 'linear-gradient(135deg, var(--strava-orange) 0%, #ff7849 100%)',
+            boxShadow: '0 4px 12px rgba(252, 97, 32, 0.15)'
           }}
         >
-          Check for App Updates
+          <RefreshCw className={isCheckingUpdates ? 'spin' : ''} size={16} />
+          {isCheckingUpdates ? 'Checking Server...' : 'Check & Refresh Updates'}
         </button>
       </div>
 
@@ -379,24 +440,33 @@ export default function Settings({ theme, setTheme }) {
         <h3 style={{ fontSize: '14px', fontWeight: '800', marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
           Appearance settings
         </h3>
-        <div className="setting-row">
-          <div className="setting-info">
-            <div className="setting-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '700' }}>
-              {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-              Dark Mode Theme
-            </div>
-            <div className="setting-desc" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Switch between black carbon and light card views
-            </div>
-          </div>
-          <label className="toggle-switch">
-            <input 
-              type="checkbox" 
-              checked={theme === 'dark'} 
-              onChange={toggleTheme} 
-            />
-            <span className="toggle-slider"></span>
-          </label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '12px', lineHeight: '1.4', margin: 0 }}>
+            Switch between dark carbon and light card layouts for optimal screen visibility.
+          </p>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            style={{
+              width: '100%',
+              height: '42px',
+              borderRadius: '10px',
+              fontWeight: '800',
+              fontSize: '13px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              border: theme === 'dark' ? '1px solid var(--strava-orange)' : '1px solid var(--card-border)',
+              background: theme === 'dark' ? 'rgba(252, 97, 32, 0.05)' : 'rgba(255, 255, 255, 0.03)',
+              color: theme === 'dark' ? 'var(--strava-orange)' : 'var(--text-primary)',
+              cursor: 'pointer',
+              transition: 'all 0.25s'
+            }}
+          >
+            {theme === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+            {theme === 'dark' ? 'Dark Mode: Active' : 'Light Mode: Active'}
+          </button>
         </div>
       </div>
 
