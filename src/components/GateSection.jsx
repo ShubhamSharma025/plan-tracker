@@ -180,9 +180,7 @@ export default function GateSection({ data, onChange, selectedDay, currentWeekId
           {/* Active Week Targets list */}
           <div className="form-group">
             <label className="form-label">Active Week Targets</label>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '-4px', marginBottom: '12px' }}>
-              Select target completion days and log study hours. Completed topics are archived to Revisions.
-            </span>
+            
             
             {activeSubtopicsKeys.length === 0 ? (
               <div style={{ background: 'var(--input-bg)', border: '1px dashed var(--card-border)', borderRadius: '12px', padding: '20px', textAlignment: 'center', color: 'var(--text-muted)', fontSize: '13px', textAlign: 'center' }}>
@@ -450,9 +448,6 @@ export default function GateSection({ data, onChange, selectedDay, currentWeekId
                 <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Trophy size={16} style={{ color: '#FBBF24' }} />
                   Practice Set Size
-                </span>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                  Total questions solved this week
                 </span>
               </div>
               

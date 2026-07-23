@@ -74,6 +74,7 @@ export function createDefaultWeek(id) {
     },
     shared: {
       dailyMinimum: [false, false, false, false, false, false, false],
+      manualDailyMinimum: [false, false, false, false, false, false, false],
       blockerNote: "", // Legacy weekly blocker reflection
       dailyBlockerNotes: {
         monday: "",
@@ -88,6 +89,26 @@ export function createDefaultWeek(id) {
   };
 }
 
+export function processWeekMinStandard(week) {
+  if (!week) return week;
+  
+  if (week.shared) {
+    if (!week.shared.manualDailyMinimum) {
+      week.shared.manualDailyMinimum = [...(week.shared.dailyMinimum || [false, false, false, false, false, false, false])];
+    }
+    
+    const planned = parseInt(week.gate?.plannedHours) || 0;
+    const actual = parseFloat(week.gate?.actualHours) || 0;
+    const hasMetGoal = planned > 0 && actual >= planned;
+    
+    week.shared.dailyMinimum = hasMetGoal 
+      ? [true, true, true, true, true, true, true]
+      : [...(week.shared.manualDailyMinimum || [false, false, false, false, false, false, false])];
+  }
+  
+  return week;
+}
+
 // Fetch a week by ID; initialize if it doesn't exist
 export async function getOrCreateWeek(id) {
   let week = await db.weeks.get(id);
@@ -95,7 +116,7 @@ export async function getOrCreateWeek(id) {
     week = createDefaultWeek(id);
     await db.weeks.add(week);
   }
-  return week;
+  return processWeekMinStandard(week);
 }
 
 // Save a week
@@ -106,7 +127,8 @@ export async function saveWeek(week) {
 
 // Get all weeks sorted newest first
 export async function getAllWeeks() {
-  return await db.weeks.reverse().toArray();
+  const weeks = await db.weeks.reverse().toArray();
+  return weeks.map(processWeekMinStandard);
 }
 
 // Syllabus Database helpers

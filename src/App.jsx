@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Today from './pages/Today';
 import Syllabus from './pages/Syllabus';
 import Settings from './pages/Settings';
+import Status from './pages/Status';
 import './styles/app.css';
 
 export default function App() {
@@ -29,6 +30,8 @@ export default function App() {
             setCurrentWeekId={setCurrentWeekId} 
           />
         );
+      case 'status':
+        return <Status currentWeekId={currentWeekId} />;
       case 'gate':
         return (
           <Syllabus 

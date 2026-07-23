@@ -29,11 +29,19 @@ export default function SharedSection({
 
   // Toggle checklist for the active selected day
   const toggleActiveDayChecklist = () => {
-    const newDailyMinimum = [...(sharedData.dailyMinimum || [false, false, false, false, false, false, false])];
-    newDailyMinimum[activeIndex] = !newDailyMinimum[activeIndex];
+    const manualDailyMinimum = [...(sharedData.manualDailyMinimum || sharedData.dailyMinimum || [false, false, false, false, false, false, false])];
+    manualDailyMinimum[activeIndex] = !manualDailyMinimum[activeIndex];
+    
+    const planned = parseInt(gateData.plannedHours) || 0;
+    const actual = parseFloat(gateData.actualHours) || 0;
+    const hasMetGoal = planned > 0 && actual >= planned;
+
     onSharedChange('shared', {
       ...sharedData,
-      dailyMinimum: newDailyMinimum
+      manualDailyMinimum,
+      dailyMinimum: hasMetGoal 
+        ? [true, true, true, true, true, true, true] 
+        : manualDailyMinimum
     });
   };
 

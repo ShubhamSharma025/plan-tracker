@@ -77,9 +77,6 @@ export default function JobSection({ data, onChange, selectedDay }) {
                 <span style={{ fontSize: '13px', fontWeight: '800', color: 'var(--text-primary)' }}>
                   Weekly Outreach Goal
                 </span>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                  Target job applications to complete this week
-                </span>
               </div>
               
               <div className="number-control" style={{ gap: '4px' }}>
@@ -110,7 +107,7 @@ export default function JobSection({ data, onChange, selectedDay }) {
           <div className="form-group" style={{ borderTop: '1px solid var(--card-border)', paddingTop: '16px' }}>
             <label className="form-label">Applications Sent</label>
             <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '-4px', marginBottom: '8px' }}>
-              Log outreach completed on {dayNameCapitalized}
+              {dayNameCapitalized}
             </span>
 
             <div style={{ 
